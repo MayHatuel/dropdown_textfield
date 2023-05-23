@@ -78,6 +78,7 @@ class DropDownTextField extends StatefulWidget {
         this.clearIconProperty,
         this.listPadding,
         this.listTextStyle,
+        this.unEnabledTextStyle,
         this.keyboardType,
         this.autovalidateMode,
         this.dropdownColor})
@@ -127,6 +128,7 @@ class DropDownTextField extends StatefulWidget {
         this.submitButtonTextStyle,
         this.listPadding,
         this.listTextStyle,
+        this.unEnabledTextStyle,
         this.checkBoxProperty,
         this.iconDropdownColor,
         this.autovalidateMode,
@@ -248,6 +250,8 @@ class DropDownTextField extends StatefulWidget {
   ///dropdown list item text style
   final TextStyle? listTextStyle;
 
+  final TextStyle? unEnabledTextStyle;
+
   final TextInputType? keyboardType;
   final AutovalidateMode? autovalidateMode;
 
@@ -294,6 +298,7 @@ class _DropDownTextFieldState extends State<DropDownTextField>
   late double _listTileHeight;
   late double _keyboardHeight;
   late TextStyle _listTileTextStyle;
+  late TextStyle _unEnabledTileTextStyle;
   late ListPadding _listPadding;
   @override
   void initState() {
@@ -444,6 +449,8 @@ class _DropDownTextFieldState extends State<DropDownTextField>
 
       _listTileTextStyle =
       (widget.listTextStyle ?? Theme.of(context).textTheme.subtitle1)!;
+      _unEnabledTileTextStyle =
+      (widget.unEnabledTextStyle ?? Theme.of(context).textTheme.subtitle1)!;
       _listTileHeight =
           _textWidgetSize("dummy Text", _listTileTextStyle).height +
               _listPadding.top +
@@ -764,6 +771,7 @@ class _DropDownTextFieldState extends State<DropDownTextField>
                 listTileHeight: _listTileHeight,
                 dropDownList: _dropDownList,
                 listTextStyle: _listTileTextStyle,
+                unEnabledTextStyle: _unEnabledTileTextStyle,
                 onChanged: (item) {
                   setState(() {
                     if (item.enabled) {

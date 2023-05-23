@@ -58,6 +58,7 @@ class DropDownTextField extends StatefulWidget {
         this.textStyle,
         this.onChanged,
         this.validator,
+        this.iconDropdownColor,
         this.dropdownAlignment,
         this.isEnabled = true,
         this.enableSearch = false,
@@ -127,6 +128,7 @@ class DropDownTextField extends StatefulWidget {
         this.listPadding,
         this.listTextStyle,
         this.checkBoxProperty,
+        this.iconDropdownColor,
         this.autovalidateMode,
         this.dropdownColor})
       : assert(initialValue == null || controller == null,
@@ -229,6 +231,8 @@ class DropDownTextField extends StatefulWidget {
   ///space between textfield and list ,default value is 0
   final double listSpace;
 
+  final Color? iconDropdownColor;
+
   ///dropdown List item padding
   final ListPadding? listPadding;
 
@@ -266,6 +270,7 @@ class _DropDownTextFieldState extends State<DropDownTextField>
   late String _hintText;
 
   late bool _isExpanded;
+  bool _closeOverlay = true;
   OverlayEntry? _entry;
   OverlayEntry? _entry2;
   OverlayEntry? _barrierOverlay;
@@ -317,9 +322,12 @@ class _DropDownTextFieldState extends State<DropDownTextField>
       }
     });
     _textFieldFocusNode.addListener(() {
+      if (!_textFieldFocusNode.hasFocus) {
+        _closeOverlay = true;
+      }
       if (!_searchFocusNode.hasFocus &&
           !_textFieldFocusNode.hasFocus &&
-          _isExpanded) {
+          _isExpanded && _closeOverlay) {
         _isExpanded = !_isExpanded;
         hideOverlay();
         if (!widget.readOnly &&
@@ -534,7 +542,7 @@ class _DropDownTextFieldState extends State<DropDownTextField>
                 widget.dropDownIconProperty?.icon ??
                     Icons.keyboard_arrow_down,
                 size: widget.dropDownIconProperty?.size,
-                color: widget.dropDownIconProperty?.color ?? widget.dropdownColor,
+                color: widget.dropDownIconProperty?.color ?? widget.iconDropdownColor,
               )
                   : widget.clearOption
                   ? InkWell(
@@ -758,18 +766,27 @@ class _DropDownTextFieldState extends State<DropDownTextField>
                 listTextStyle: _listTileTextStyle,
                 onChanged: (item) {
                   setState(() {
-                    _cnt.text = item.name;
-                    _isExpanded = !_isExpanded;
+                    if (item.enabled) {
+                      _cnt.text = item.name;
+                      _isExpanded = !_isExpanded;
+                      _closeOverlay = true;
+                      if (widget.singleController != null) {
+                        widget.singleController!.setDropDown(item);
+                      }
+                      if (widget.onChanged != null) {
+                        widget.onChanged!(item);
+                      }
+
+                      hideOverlay();
+                    }
+                    else {
+                      _closeOverlay = false;
+                    }
+
                   });
-                  if (widget.singleController != null) {
-                    widget.singleController!.setDropDown(item);
-                  }
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(item);
-                  }
+
                   // Navigator.pop(context, null);
 
-                  hideOverlay();
                 },
                 searchHeight: _searchWidgetHeight,
                 searchKeyboardType: widget.searchKeyboardType,
@@ -867,6 +884,7 @@ class SingleSelection extends StatefulWidget {
         this.listTextStyle,
         this.dropdownAlignment,
         this.searchDecoration,
+        this.unEnabledTextStyle,
         required this.listPadding,
         this.clearIconProperty})
       : super(key: key);
@@ -886,6 +904,7 @@ class SingleSelection extends StatefulWidget {
   final Function? onSearchTap;
   final Function? onSearchSubmit;
   final TextStyle? listTextStyle;
+  final TextStyle? unEnabledTextStyle;
   final ListPadding listPadding;
   final InputDecoration? searchDecoration;
   final IconProperty? clearIconProperty;
@@ -1012,8 +1031,15 @@ class _SingleSelectionState extends State<SingleSelection> {
                       alignment: widget.dropdownAlignment ?? Alignment.centerRight,
                       child: FittedBox(
                         fit: BoxFit.fitHeight,
-                        child: Text(newDropDownList[index].name,
-                            style: widget.listTextStyle),
+                        child: (newDropDownList[index].enabled)
+                            ? Text(
+                            newDropDownList[index].name,
+                            style: widget.listTextStyle
+                        )
+                            : Text(
+                            newDropDownList[index].name,
+                            style: widget.unEnabledTextStyle
+                        ),
                       ),
                     ),
                   ),
@@ -1198,24 +1224,27 @@ class _MultiSelectionState extends State<MultiSelection> {
 class DropDownValueModel extends Equatable {
   final String name;
   final dynamic value;
+  final bool enabled;
 
   ///as of now only added for multiselection dropdown
   final String? toolTipMsg;
 
   const DropDownValueModel(
-      {required this.name, required this.value, this.toolTipMsg});
+      {required this.name, required this.value, this.toolTipMsg, this.enabled = true});
 
   factory DropDownValueModel.fromJson(Map<String, dynamic> json) =>
       DropDownValueModel(
-        name: json["name"],
-        value: json["value"],
-        toolTipMsg: json["toolTipMsg"],
+          name: json['name'],
+          value: json['value'],
+          toolTipMsg: json['toolTipMsg'],
+          enabled: json['enabled']
       );
 
   Map<String, dynamic> toJson() => {
-    "name": name,
-    "value": value,
-    "toolTipMsg": toolTipMsg,
+    'name': name,
+    'value': value,
+    'toolTipMsg': toolTipMsg,
+    'enabled': enabled
   };
   @override
   List<Object> get props => [name, value];

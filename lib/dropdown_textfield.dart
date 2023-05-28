@@ -1233,26 +1233,29 @@ class DropDownValueModel extends Equatable {
   final String name;
   final dynamic value;
   final bool enabled;
+  final Key? key;
 
   ///as of now only added for multiselection dropdown
   final String? toolTipMsg;
 
   const DropDownValueModel(
-      {required this.name, required this.value, this.toolTipMsg, this.enabled = true});
+      {required this.name, required this.value, this.toolTipMsg, this.enabled = true, this.key});
 
   factory DropDownValueModel.fromJson(Map<String, dynamic> json) =>
       DropDownValueModel(
           name: json['name'],
           value: json['value'],
           toolTipMsg: json['toolTipMsg'],
-          enabled: json['enabled']
+          enabled: json['enabled'],
+          key: json['key']
       );
 
   Map<String, dynamic> toJson() => {
     'name': name,
     'value': value,
     'toolTipMsg': toolTipMsg,
-    'enabled': enabled
+    'enabled': enabled,
+    'key': key
   };
   @override
   List<Object> get props => [name, value];

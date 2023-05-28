@@ -1029,6 +1029,7 @@ class _SingleSelectionState extends State<SingleSelection> {
                     widget.onChanged(newDropDownList[index]);
                   },
                   child: Container(
+                    key: newDropDownList[index].key,
                     width: double.infinity,
                     padding: EdgeInsets.only(
                         left: 10,

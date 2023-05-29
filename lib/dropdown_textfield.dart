@@ -1038,16 +1038,19 @@ class _SingleSelectionState extends State<SingleSelection> {
                         top: widget.listPadding.top),
                     child: Align(
                       alignment: widget.dropdownAlignment ?? Alignment.centerRight,
-                      child: FittedBox(
-                        fit: BoxFit.fitHeight,
+                      child: Flexible(
                         child: (newDropDownList[index].enabled)
                             ? Text(
                             newDropDownList[index].name,
-                            style: widget.listTextStyle
+                            style: widget.listTextStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                         )
                             : Text(
                             newDropDownList[index].name,
-                            style: widget.unEnabledTextStyle
+                            style: widget.unEnabledTextStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
